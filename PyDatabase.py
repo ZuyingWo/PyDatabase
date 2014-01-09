@@ -36,7 +36,7 @@ class PyDatabase():
                 self.query += " " + condition + " = '" + str(condition_or[condition]) + "' OR"
             self.query = self.query.strip(" OR")
 
-    def Update(self, table=None, values=None, condition_and=None, condition_or=None):
+    def Update(self, table=None, values=None, condition_and=None, condition_or=None, execute=True):
 
         if table is None or values is None:
             return False
@@ -45,24 +45,38 @@ class PyDatabase():
             self.query += " " + column + " = '" + values[column] + "',"
         self.query = self.query.strip(",")
         self.Condition(condition_and=condition_and, condition_or=condition_or)
+        if not execute:
+            return True
         try:
             self.cursor.execute(self.query)
             return True
         except:
             return False
 
-    def Select(self, table=None, columns=None, condition_or=None, condition_and=None):
+    def Select(self, table=None, columns=None, condition_or=None, condition_and=None, order=None, execute=True, fetchall=True):
         if table is None or columns is None:
-            return None
+            return False
         self.query = "SELECT"
         for column in columns:
             self.query += " " + column + ","
         self.query = self.query.strip(",")
         self.query += " FROM " + table
         self.Condition(condition_and=condition_and, condition_or=condition_or)
+        if order is not None:
+            self.query += " ORDER BY " + order
+
+        if not execute:
+            return True
 
         try:
             self.cursor.execute(self.query)
-            return self.cursor.fetchall()
+            if fetchall:
+                return self.cursor.fetchall()
+            else:
+                return self.cursor
         except:
             return False
+
+    def Close(self):
+        self.cursor.close()
+        self.con.close()
