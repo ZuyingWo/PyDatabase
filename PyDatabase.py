@@ -66,7 +66,7 @@ class PyDatabase():
             self.query += " ORDER BY " + order
 
         if not execute:
-            return True
+            return self.query
 
         try:
             self.cursor.execute(self.query)
@@ -76,6 +76,20 @@ class PyDatabase():
                 return self.cursor
         except:
             return False
+
+    def Execute(self, query=None, fetchall=True):
+        if query is None:
+            return False
+        self.query = query
+        try:
+            self.cursor.execute(self.query)
+            if fetchall:
+                return self.cursor.fetchall()
+            else:
+                return True
+        except:
+            return False
+
 
     def Close(self):
         self.cursor.close()
